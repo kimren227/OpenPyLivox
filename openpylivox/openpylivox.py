@@ -39,7 +39,7 @@ import numpy as np
 from tqdm import tqdm
 import laspy
 from deprecated import deprecated
-
+import socket
 
 class _heartbeatThread(object):
 
@@ -103,7 +103,7 @@ class _heartbeatThread(object):
 
 class _dataCaptureThread(object):
 
-    def __init__(self, sensorIP, data_socket, imu_socket, filePathAndName, fileType, secsToWait, duration, firmwareType, showMessages, format_spaces, deviceType):
+    def __init__(self, sensorIP, data_socket, imu_socket, filePathAndName, fileType, secsToWait, duration, firmwareType, showMessages, format_spaces, deviceType, socket_ip="127.0.0.1", socket_port=6006):
 
         self.startTime = -1
         self.sensorIP = sensorIP
@@ -136,6 +136,9 @@ class _dataCaptureThread(object):
         self.self_heating_status = -1
         self.ptp_status = -1
         self.time_sync_status = -1
+        self.socket_port = socket_port
+        self.socket_ip = socket_ip
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, 0)
 
         if duration == 0:
             self.duration = 126230400  # 4 years of time (so technically not indefinite)
@@ -1080,7 +1083,6 @@ class _dataCaptureThread(object):
 
                                             # timestamp
                                             timestamp_sec += 0.00001
-
                                             if deviceCheck == 100:
                                                 numPts += 1
                                                 binFile.write(data_pc[bytePos:bytePos + 13])
@@ -1174,7 +1176,9 @@ class _dataCaptureThread(object):
                                             if coord2:
                                                 numPts += 1
                                                 binFile.write(data_pc[bytePos:bytePos + 28])
+                                                # self.socket.sendto(data_pc[bytePos:bytePos + 28], (self.ip, self.port))
                                                 binFile.write(struct.pack('<d', timestamp_sec))
+                                                self.socket.sendto(data_pc[bytePos:bytePos + 28], (self.socket_ip, self.socket_port))
                                             else:
                                                 nullPts += 1
 
@@ -1503,7 +1507,7 @@ class openpylivox(object):
                                    "03.03.0006": 2,
                                    "03.03.0007": 3}
 
-    def __init__(self, showMessages=False):
+    def __init__(self, showMessages=False, socket_ip="127.0.0.1", socket_port=6006):
 
         self._isConnected = False
         self._isData = False
@@ -1533,6 +1537,8 @@ class openpylivox(object):
         self._deviceType = "UNKNOWN"
         self._mid100_sensors = []
         self._format_spaces = ""
+        self.socket_ip = socket_ip
+        self.socket_port = socket_port
 
     def _reinit(self):
 
@@ -2415,7 +2421,7 @@ class openpylivox(object):
 
         if self._isConnected:
             if not self._isData:
-                self._captureStream = _dataCaptureThread(self._sensorIP, self._dataSocket, "", 0, 0, 0, 0, self._showMessages, self._format_spaces, self._deviceType)
+                self._captureStream = _dataCaptureThread(self._sensorIP, self._dataSocket, "", 0, 0, 0, 0, self._showMessages, self._format_spaces, self._deviceType, socket_ip=self.socket_ip, socket_port=self.socket_port)
                 time.sleep(0.12)
                 self._waitForIdle()
                 self._cmdSocket.sendto(self._CMD_DATA_START, (self._sensorIP, 65000))

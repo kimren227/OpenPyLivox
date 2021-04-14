@@ -28,7 +28,7 @@ import sys
 def singleSensorDemo():
 
     # create an openpylivox object
-    sensor = opl.openpylivox(True)  # optional True/False, is used to have sensor messages printed to screen (default = False)
+    sensor = opl.openpylivox(True, socket_ip="10.161.60.191", socket_port=6006)  # optional True/False, is used to have sensor messages printed to screen (default = False)
 
     # automatically discover if any Livox Sensors are available on the network
     # sensor.discover()
@@ -43,8 +43,7 @@ def singleSensorDemo():
     sensor.resetShowMessages()
 
     # easiest to try to automatically set the openpylivox sensor connection parameters and connect
-    connected = sensor.auto_connect()
-
+    connected = sensor.auto_connect('10.161.32.84')
     # or if your computer has multiple IP address you can force the computer IP to a manual address
     # connected = sensor.auto_connect("192.168.1.23")
 
@@ -134,7 +133,7 @@ def singleSensorDemo():
 
         filePathAndName = "test.bin"  # file extension is NOT used to automatically determine if ASCII or Binary data is stored
         secsToWait = 0.1  # seconds, time delayed data capture start
-        duration = 3.0  # seconds, zero (0) specifies an indefinite duration
+        duration = 1.0  # seconds, zero (0) specifies an indefinite duration
 
         # (*** IMPORTANT: this command starts a new thread, so the current program (thread) needs to exist for the 'duration' ***)
         # capture the data stream and save it to a file (if applicable, IMU data stream will also be saved to a file)

@@ -23,6 +23,7 @@ import openpylivox as opl
 import time
 import sys
 
+DURATION = 50
 
 # demo operations for a single Livox Sensor
 def singleSensorDemo():
@@ -133,7 +134,7 @@ def singleSensorDemo():
 
         filePathAndName = "test.bin"  # file extension is NOT used to automatically determine if ASCII or Binary data is stored
         secsToWait = 0.1  # seconds, time delayed data capture start
-        duration = 1.0  # seconds, zero (0) specifies an indefinite duration
+        duration = DURATION  # seconds, zero (0) specifies an indefinite duration
 
         # (*** IMPORTANT: this command starts a new thread, so the current program (thread) needs to exist for the 'duration' ***)
         # capture the data stream and save it to a file (if applicable, IMU data stream will also be saved to a file)
@@ -193,13 +194,14 @@ def multipleSensorsDemo():
 
     connected = 0
     # loop through and find and connect to all sensors
+    device_id = 0
     while connected != 1:
 
         # instantiate an openpylivox sensor object
-        sensor = opl.openpylivox(True)
-
+        sensor = opl.openpylivox(True, socket_ip="10.161.60.191", socket_port=6006, device_id=device_id)
+        device_id += 1
         # automatically find and connect to a sensor
-        connected = sensor.auto_connect("192.168.1.23")
+        connected = sensor.auto_connect("10.161.32.84")
 
         if connected:
             # initial commands for each sensor (no harm if the parameter is not supported by sensor)
@@ -230,7 +232,7 @@ def multipleSensorsDemo():
             filePathAndNames.append(filename)
             sensors[i].resetShowMessages()
 
-            sensors[i].saveDataToFile(filename, 0.0, 5.0)
+            sensors[i].saveDataToFile(filename, 0.0, DURATION)
 
         # simulate other operations being performed
         while True:
@@ -260,5 +262,5 @@ def multipleSensorsDemo():
 
 if __name__ == '__main__':
 
-    singleSensorDemo()
-    # multipleSensorsDemo()
+    # singleSensorDemo()
+    multipleSensorsDemo()

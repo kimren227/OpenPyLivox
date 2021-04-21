@@ -1179,7 +1179,7 @@ class _dataCaptureThread(object):
                                                 binFile.write(data_pc[bytePos:bytePos + 28])
                                                 # self.socket.sendto(data_pc[bytePos:bytePos + 28], (self.ip, self.port))
                                                 binFile.write(struct.pack('<d', timestamp_sec))
-                                                self.socket.sendto(data_pc[bytePos:bytePos + 28] + struct.unpack('<i', self.device_id), (self.socket_ip, self.socket_port))
+                                                self.socket.sendto(data_pc[bytePos:bytePos + 28] + struct.pack('<i', self.device_id), (self.socket_ip, self.socket_port))
                                             else:
                                                 nullPts += 1
 
@@ -2494,7 +2494,7 @@ class openpylivox(object):
 
         if self._isConnected:
             if not self._isData:
-                self._captureStream = _dataCaptureThread(self._sensorIP, self._dataSocket, self._imuSocket, "", 2, 0, 0, 0, self._showMessages, self._format_spaces, self._deviceType)
+                self._captureStream = _dataCaptureThread(self._sensorIP, self._dataSocket, self._imuSocket, "", 2, 0, 0, 0, self._showMessages, self._format_spaces, self._deviceType, socket_ip="127.0.0.1", socket_port=6006, device_id=self.device_id)
                 time.sleep(0.12)
                 self._waitForIdle()
                 self._cmdSocket.sendto(self._CMD_DATA_START, (self._sensorIP, 65000))

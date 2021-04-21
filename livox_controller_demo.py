@@ -23,7 +23,7 @@ import openpylivox as opl
 import time
 import sys
 
-DURATION = 50
+DURATION = 6000
 
 # demo operations for a single Livox Sensor
 def singleSensorDemo():
@@ -163,7 +163,7 @@ def singleSensorDemo():
         # sensor.lidarStandBy()
 
         # if you want to stop the lidar from spinning (ie., lidar to power-save mode)
-        sensor.lidarSpinDown()
+        # sensor.lidarSpinDown()
 
         # if you want to reboot the sensor
         # sensor.reboot()
@@ -207,7 +207,7 @@ def multipleSensorsDemo():
             # initial commands for each sensor (no harm if the parameter is not supported by sensor)
             sensor.setCartesianCS()
             sensor.setRainFogSuppression(False)
-            sensor.setLidarReturnMode(0)
+            sensor.setLidarReturnMode(2)
             sensor.setIMUdataPush(True)
 
             # append to sensor objects list
@@ -248,8 +248,8 @@ def multipleSensorsDemo():
             sensors[i].dataStop()
 
         # spin down all the sensors
-        for i in range(0, len(sensors)):
-            sensors[i].lidarSpinDown()
+        # for i in range(0, len(sensors)):
+            # sensors[i].lidarSpinDown()
 
         # disconnect all the sensors and convert binary data files to ASCII-based files
         for i in range(0, len(sensors)):
@@ -257,10 +257,16 @@ def multipleSensorsDemo():
 
             # convert BINARY point data to LAS file and IMU data (if applicable) to CSV file
             # no harm done if filePathAndName is an ASCII CSV file, the conversion will be skipped
-            opl.convertBin2LAS(filePathAndNames[i], deleteBin=True)
+            # opl.convertBin2LAS(filePathAndNames[i], deleteBin=True)
 
 
 if __name__ == '__main__':
-
-    # singleSensorDemo()
-    multipleSensorsDemo()
+    # mode = "Single"
+    mode = "Multiple"
+    print("Mode: %s " % mode)
+    if mode == "Single":
+        singleSensorDemo()
+    elif mode == "Multiple":
+        multipleSensorsDemo()
+    else:
+        print("Error")
